@@ -1,4 +1,4 @@
-sujeto,verbo,preposición,objeto,caso,recibe_accion,beneficiario,prep_movimiento,verbo_copulativo
-"Ich,""geben"",""an"",""den Mann"",""acusativo"",1,0,1,0"
-"Sie,""helfen"",""mit"",""dem Freund"",""dativo"",0,1,0,0"
-"Das,""ist"",""-"",""mein Buch"",""nominativo"",0,0,0,1"
+sujeto,verbo,preposiciÃ³n,objeto,caso,recibe_accion,beneficiario,prep_movimiento,verbo_copulativo
+Ich,geben,an,den Mann,acusativo,1,0,1,0
+Sie,helfen,mit,dem Freund,dativo,0,1,0,0
+Das,ist,-,mein Buch,nominativo,0,0,0,1
