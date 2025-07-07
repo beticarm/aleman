@@ -15,10 +15,19 @@ import os
 # Cargar el dataset
 @st.cache_data
 def cargar_datos():
+    columnas = [
+        "sujeto", "verbo", "preposición", "objeto", "caso",
+        "recibe_accion", "beneficiario", "prep_movimiento", "verbo_copulativo"
+    ]
+
     if os.path.exists("frases_dativo_acusativo.csv"):
-        return pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
+        df = pd.read_csv("frases_dativo_acusativo.csv", encoding="utf-8")
+        for col in columnas:
+            if col not in df.columns:
+                df[col] = 0  # o np.nan si prefieres
+        return df[columnas]
     else:
-        return pd.DataFrame(columns=["sujeto", "verbo", "preposición", "objeto", "caso", "recibe_accion", "beneficiario", "prep_movimiento"])
+        return pd.DataFrame(columns=columnas)
 
 df = cargar_datos()
 
@@ -75,3 +84,50 @@ if frase:
 
     else:
         st.warning("⚠️ No hay suficientes datos para entrenar el modelo. Agrega ejemplos primero.")
+
+import pandas as pd
+
+# Crear datos de ejemplo
+datos = [
+    {
+        "sujeto": "Ich",
+        "verbo": "geben",
+        "preposición": "an",
+        "objeto": "den Mann",
+        "caso": "acusativo",
+        "recibe_accion": 1,
+        "beneficiario": 0,
+        "prep_movimiento": 1,
+        "verbo_copulativo": 0
+    },
+    {
+        "sujeto": "Sie",
+        "verbo": "helfen",
+        "preposición": "mit",
+        "objeto": "dem Freund",
+        "caso": "dativo",
+        "recibe_accion": 0,
+        "beneficiario": 1,
+        "prep_movimiento": 0,
+        "verbo_copulativo": 0
+    },
+    {
+        "sujeto": "Das",
+        "verbo": "ist",
+        "preposición": "-",
+        "objeto": "mein Buch",
+        "caso": "nominativo",
+        "recibe_accion": 0,
+        "beneficiario": 0,
+        "prep_movimiento": 0,
+        "verbo_copulativo": 1
+    }
+]
+
+# Crear el DataFrame
+df = pd.DataFrame(datos)
+
+# Guardar como CSV
+df.to_csv("frases_dativo_acusativo.csv", index=False, encoding="utf-8")
+
+print("✅ Archivo 'frases_dativo_acusativo.csv' creado correctamente con todas las columnas.")
