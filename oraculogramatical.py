@@ -24,7 +24,7 @@ df = cargar_datos()
 
 # Entrenar el modelo
 if not df.empty:
-    X = df[["recibe_accion", "beneficiario", "prep_movimiento"]]
+    X = df[["recibe_accion", "beneficiario", "prep_movimiento","verbo_copulativo"]]
     y = df["caso"]
     modelo = DecisionTreeClassifier()
     modelo.fit(X, y)
@@ -52,12 +52,14 @@ if frase:
         r = st.radio("1️⃣ ¿El sustantivo (objeto) recibe directamente la acción del verbo?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
         b = st.radio("2️⃣ ¿El sustantivo es el destinatario o beneficiario de la acción?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
         m = st.radio("3️⃣ ¿La preposición indica movimiento o dirección?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
+        copulativo = st.radio("4️⃣ ¿El verbo es como 'sein', 'werden' o 'heißen' (no tiene objeto directo)?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
+
 
         if st.button(" Predecir"):
-            if prep == "-" and r == 0 and b == 0 and m == 0:
-                st.info("🧠 Según tus respuestas, el sustantivo podría estar en **nominativo**, ya que no parece cumplir función de objeto directo ni indirecto.")
+            if prep == "-" and r == 0 and b == 0 and m == 0 copulativo == 1:
+                st.info(" Según tus respuestas, el sustantivo podría estar en **nominativo**, ya que no parece cumplir función de objeto directo ni indirecto.")
             else:
-                prediccion = modelo.predict([[r, b, m]])[0]
+                prediccion = modelo.predict([[r, b, m, copulativo]])[0]
                 st.markdown(f"### El Oráculo gramatical predice: **{prediccion.upper()}**")
 
                 confirma = st.radio("¿Es correcta esta predicción?", ["sí", "no"])
@@ -65,10 +67,11 @@ if frase:
                     caso_real = st.selectbox("¿Cuál es el caso correcto?", ["dativo", "acusativo", "nominativo"])
                     nueva_fila = pd.DataFrame([{
                         "sujeto": "-", "verbo": "-", "preposición": prep, "objeto": frase,
-                        "caso": caso_real, "recibe_accion": r, "beneficiario": b, "prep_movimiento": m
+                        "caso": caso_real, "recibe_accion": r, "beneficiario": b, "prep_movimiento": m,"verbo_copulativo": copulativo
                     }])
                     df = pd.concat([df, nueva_fila], ignore_index=True)
                     df.to_csv("frases_dativo_acusativo.csv", index=False, encoding="utf-8")
                     st.success("✅ Nuevo ejemplo añadido. El Oráculo ha aprendido algo nuevo.")
+
     else:
         st.warning("⚠️ No hay suficientes datos para entrenar el modelo. Agrega ejemplos primero.")
