@@ -16,7 +16,8 @@ import os
 @st.cache_data
 def cargar_datos():
     if os.path.exists("frases_dativo_acusativo.csv"):
-        return pd.read_csv("frases_dativo_acusativo.csv", encoding="utf-8", errors="replace")
+       return pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
+
     else:
         return pd.DataFrame(columns=["sujeto", "verbo", "preposición", "objeto", "caso", "recibe_accion", "beneficiario", "prep_movimiento"])
 
