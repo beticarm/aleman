@@ -1,11 +1,4 @@
-sujeto,verbo,preposición,objeto,caso,recibe_accion,beneficiario,prep_movimiento
-Ich,gebe,an,dem Kind,dativo,0,1,1
-Er,sieht,-,den Hund,acusativo,1,0,0
-Wir,schenken,zu,der Mutter,dativo,0,1,0
-Sie,kauft,-,einen Apfel,acusativo,1,0,0
-Ich,helfe,mit,dem Freund,dativo,0,1,0
-Du,bringst,nach,der Schule,dativo,0,1,1
-Wir,sehen,-,den Film,acusativo,1,0,0
-Ich,erzähle,von,dem Lehrer,dativo,0,1,0
-Er,legt,auf,den Tisch,acusativo,1,0,1
-Sie,liegt,auf,dem Sofa,dativo,0,0,0
+sujeto,verbo,preposición,objeto,caso,recibe_accion,beneficiario,prep_movimiento,verbo_copulativo
+"Ich,""geben"",""an"",""den Mann"",""acusativo"",1,0,1,0"
+"Sie,""helfen"",""mit"",""dem Freund"",""dativo"",0,1,0,0"
+"Das,""ist"",""-"",""mein Buch"",""nominativo"",0,0,0,1"
