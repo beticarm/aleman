@@ -56,7 +56,7 @@ if frase:
 
 
         if st.button(" Predecir"):
-            if prep == "-" and r == 0 and b == 0 and m == 0 copulativo == 1:
+            if prep == "-" and r == 0 and b == 0 and m == 0 and copulativo == 1:
                 st.info(" Según tus respuestas, el sustantivo podría estar en **nominativo**, ya que no parece cumplir función de objeto directo ni indirecto.")
             else:
                 prediccion = modelo.predict([[r, b, m, copulativo]])[0]
