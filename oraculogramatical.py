@@ -16,8 +16,7 @@ import os
 @st.cache_data
 def cargar_datos():
     if os.path.exists("frases_dativo_acusativo.csv"):
-       return pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
-
+        return pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
     else:
         return pd.DataFrame(columns=["sujeto", "verbo", "preposición", "objeto", "caso", "recibe_accion", "beneficiario", "prep_movimiento"])
 
@@ -38,11 +37,11 @@ preposiciones_dativas = [
     "außer", "gegenüber", "entgegen", "gemäß"
 ]
 
-st.title("📚 Oráculo Gramatical: ¿Dativo o Acusativo?")
+st.title("Oráculo Gramatical: ¿Dativo, Acusativo o Nominativo?")
 st.write("Introduce una frase en alemán y responde algunas preguntas para predecir el caso gramatical.")
 
-frase = st.text_input("✍️ Escribe tu frase en alemán:")
-prep = st.text_input("📌 ¿Cuál es la preposición principal de la frase? (Escribe '-' si no hay):").strip().lower()
+frase = st.text_input("Escribe tu frase en alemán:")
+prep = st.text_input("¿Cuál es la preposición principal de la frase? (Escribe '-' si no hay):").strip().lower()
 
 if frase:
     if prep in preposiciones_dativas:
@@ -54,19 +53,22 @@ if frase:
         b = st.radio("2️⃣ ¿El sustantivo es el destinatario o beneficiario de la acción?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
         m = st.radio("3️⃣ ¿La preposición indica movimiento o dirección?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
 
-        if st.button("🔮 Predecir"):
-            prediccion = modelo.predict([[r, b, m]])[0]
-            st.markdown(f"### ✨ El Oráculo gramatical predice: **{prediccion.upper()}**")
+        if st.button(" Predecir"):
+            if prep == "-" and r == 0 and b == 0 and m == 0:
+                st.info("🧠 Según tus respuestas, el sustantivo podría estar en **nominativo**, ya que no parece cumplir función de objeto directo ni indirecto.")
+            else:
+                prediccion = modelo.predict([[r, b, m]])[0]
+                st.markdown(f"### El Oráculo gramatical predice: **{prediccion.upper()}**")
 
-            confirma = st.radio("¿Es correcta esta predicción?", ["sí", "no"])
-            if confirma == "no":
-                caso_real = st.selectbox("¿Cuál es el caso correcto?", ["dativo", "acusativo"])
-                nueva_fila = pd.DataFrame([{
-                    "sujeto": "-", "verbo": "-", "preposición": prep, "objeto": frase,
-                    "caso": caso_real, "recibe_accion": r, "beneficiario": b, "prep_movimiento": m
-                }])
-                df = pd.concat([df, nueva_fila], ignore_index=True)
-                df.to_csv("frases_dativo_acusativo.csv", index=False, encoding="utf-8")
-                st.success("✅ Nuevo ejemplo añadido. El Oráculo ha aprendido algo nuevo.")
+                confirma = st.radio("¿Es correcta esta predicción?", ["sí", "no"])
+                if confirma == "no":
+                    caso_real = st.selectbox("¿Cuál es el caso correcto?", ["dativo", "acusativo", "nominativo"])
+                    nueva_fila = pd.DataFrame([{
+                        "sujeto": "-", "verbo": "-", "preposición": prep, "objeto": frase,
+                        "caso": caso_real, "recibe_accion": r, "beneficiario": b, "prep_movimiento": m
+                    }])
+                    df = pd.concat([df, nueva_fila], ignore_index=True)
+                    df.to_csv("frases_dativo_acusativo.csv", index=False, encoding="utf-8")
+                    st.success("✅ Nuevo ejemplo añadido. El Oráculo ha aprendido algo nuevo.")
     else:
         st.warning("⚠️ No hay suficientes datos para entrenar el modelo. Agrega ejemplos primero.")
