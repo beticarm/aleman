@@ -31,12 +31,18 @@ def cargar_datos():
         "sujeto", "verbo", "preposición", "objeto", "caso",
         "recibe_accion", "beneficiario", "prep_movimiento", "verbo_copulativo"
     ]
+
     if os.path.exists("frases_dativo_acusativo.csv"):
-        df = pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
-        for col in columnas:
-            if col not in df.columns:
-                df[col] = 0
-        return df[columnas]
+        try:
+            df = pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
+            df.columns = [col.strip() for col in df.columns]  # Limpia espacios
+            for col in columnas:
+                if col not in df.columns:
+                    df[col] = 0
+            return df[columnas]
+        except Exception as e:
+            st.error(f"Error al cargar el archivo: {e}")
+            return pd.DataFrame(columns=columnas)
     else:
         return pd.DataFrame(columns=columnas)
 
