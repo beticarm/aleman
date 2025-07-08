@@ -12,6 +12,18 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 import os
 
+# Preposiciones que exigen dativo
+preposiciones_dativas = [
+    "aus", "bei", "mit", "nach", "seit", "von", "zu",
+    "außer", "gegenüber", "entgegen", "gemäß"
+]
+
+# Verbos que exigen dativo
+verbos_dativos = [
+    "danken", "helfen", "gefallen", "gehören", "glauben", "passen", "schmecken",
+    "folgen", "drohen", "fehlen", "antworten", "begegnen", "vertrauen", "verzeihen", "wehtun", "weh tun"
+]
+
 # Cargar el dataset
 @st.cache_data
 def cargar_datos():
@@ -19,12 +31,11 @@ def cargar_datos():
         "sujeto", "verbo", "preposición", "objeto", "caso",
         "recibe_accion", "beneficiario", "prep_movimiento", "verbo_copulativo"
     ]
-
     if os.path.exists("frases_dativo_acusativo.csv"):
         df = pd.read_csv("frases_dativo_acusativo.csv", encoding="utf-8")
         for col in columnas:
             if col not in df.columns:
-                df[col] = 0  # o np.nan si prefieres
+                df[col] = 0
         return df[columnas]
     else:
         return pd.DataFrame(columns=columnas)
@@ -33,28 +44,33 @@ df = cargar_datos()
 
 # Entrenar el modelo
 if not df.empty:
-    X = df[["recibe_accion", "beneficiario", "prep_movimiento","verbo_copulativo"]]
+    X = df[["recibe_accion", "beneficiario", "prep_movimiento", "verbo_copulativo"]]
     y = df["caso"]
     modelo = DecisionTreeClassifier()
     modelo.fit(X, y)
 else:
     modelo = None
 
-# Preposiciones dativas
-preposiciones_dativas = [
-    "aus", "bei", "mit", "nach", "seit", "von", "zu",
-    "außer", "gegenüber", "entgegen", "gemäß"
-]
-
-st.title("Oráculo Gramatical: ¿Dativo, Acusativo o Nominativo?")
+# Interfaz de usuario
+st.title(" Oráculo Gramatical: ¿Dativo, Acusativo o Nominativo?")
 st.write("Introduce una frase en alemán y responde algunas preguntas para predecir el caso gramatical.")
 
-frase = st.text_input("Escribe tu frase en alemán:")
-prep = st.text_input("¿Cuál es la preposición principal de la frase? (Escribe '-' si no hay):").strip().lower()
+frase = st.text_input(" Escribe tu frase en alemán:")
+prep = st.text_input(" ¿Cuál es la preposición principal de la frase? (Escribe '-' si no hay):").strip().lower()
+
+# Detectar si hay un verbo dativo en la frase
+verbo_detectado = None
+for verbo in verbos_dativos:
+    if verbo in frase.lower():
+        verbo_detectado = verbo
+        break
 
 if frase:
     if prep in preposiciones_dativas:
         st.success(f"La preposición '{prep}' exige **DATIVO** por regla gramatical.")
+        prediccion = "dativo"
+    elif verbo_detectado:
+        st.success(f"El verbo '{verbo_detectado}' exige **DATIVO** por regla gramatical.")
         prediccion = "dativo"
     elif modelo:
         st.write("Ahora responde estas preguntas sobre la función del objeto en tu frase:")
@@ -63,27 +79,26 @@ if frase:
         m = st.radio("3️⃣ ¿La preposición indica movimiento o dirección?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
         copulativo = st.radio("4️⃣ ¿El verbo es como 'sein', 'werden' o 'heißen' (no tiene objeto directo)?", [1, 0], format_func=lambda x: "Sí" if x == 1 else "No")
 
-
         if st.button(" Predecir"):
-            if prep == "-" and r == 0 and b == 0 and m == 0) or copulativo == 1:
+            if (prep == "-" and r == 0 and b == 0 and m == 0) or copulativo == 1:
                 st.info(" Según tus respuestas, el sustantivo podría estar en **nominativo**, ya que no parece cumplir función de objeto directo ni indirecto.")
             else:
                 prediccion = modelo.predict([[r, b, m, copulativo]])[0]
-                st.markdown(f"### El Oráculo gramatical predice: **{prediccion.upper()}**")
+                st.markdown(f"###  El Oráculo gramatical predice: **{prediccion.upper()}**")
 
                 confirma = st.radio("¿Es correcta esta predicción?", ["sí", "no"])
                 if confirma == "no":
                     caso_real = st.selectbox("¿Cuál es el caso correcto?", ["dativo", "acusativo", "nominativo"])
                     nueva_fila = pd.DataFrame([{
-                        "sujeto": "-", "verbo": "-", "preposición": prep, "objeto": frase,
-                        "caso": caso_real, "recibe_accion": r, "beneficiario": b, "prep_movimiento": m,"verbo_copulativo": copulativo
+                        "sujeto": "-", "verbo": verbo_detectado or "-", "preposición": prep, "objeto": frase,
+                        "caso": caso_real, "recibe_accion": r, "beneficiario": b,
+                        "prep_movimiento": m, "verbo_copulativo": copulativo
                     }])
                     df = pd.concat([df, nueva_fila], ignore_index=True)
                     df.to_csv("frases_dativo_acusativo.csv", index=False, encoding="utf-8")
-                    st.success("✅ Nuevo ejemplo añadido. El Oráculo ha aprendido algo nuevo.")
-
+                    st.success(" Nuevo ejemplo añadido. El Oráculo ha aprendido algo nuevo.")
     else:
-        st.warning("⚠️ No hay suficientes datos para entrenar el modelo. Agrega ejemplos primero.")
+        st.warning(" No hay suficientes datos para entrenar el modelo. Agrega ejemplos primero.")
 
 import pandas as pd
 
