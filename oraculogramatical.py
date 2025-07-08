@@ -32,7 +32,7 @@ def cargar_datos():
         "recibe_accion", "beneficiario", "prep_movimiento", "verbo_copulativo"
     ]
     if os.path.exists("frases_dativo_acusativo.csv"):
-        df = pd.read_csv("frases_dativo_acusativo.csv", encoding="utf-8")
+        df = pd.read_csv("frases_dativo_acusativo.csv", encoding="latin1")
         for col in columnas:
             if col not in df.columns:
                 df[col] = 0
